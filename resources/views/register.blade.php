@@ -104,6 +104,7 @@
                     #a855f7,
                     #ec4899);
             -webkit-background-clip: text;
+            background-clip: text;
             -webkit-text-fill-color: transparent;
         }
 

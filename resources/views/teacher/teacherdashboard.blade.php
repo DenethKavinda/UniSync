@@ -8,7 +8,7 @@
 </head>
 
 <body>
-    <h1>Teacher Dashboard</h1>
+    @include('component.teacherSideBar')
 </body>
 
 </html>
