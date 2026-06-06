@@ -20,6 +20,7 @@ class RegisterController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:register_users',
             'password' => 'required|string|min:8',
+
         ]);
 
         // Create a new user in the database
@@ -27,6 +28,7 @@ class RegisterController extends Controller
             'name' => $validatedData['name'],
             'email' => $validatedData['email'],
             'password' => Hash::make($validatedData['password']),
+            'role' => 'user', // Set a default role for the user, you can modify this as needed
         ]);
 
         // Redirect to a desired page after successful registration
