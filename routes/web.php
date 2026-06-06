@@ -23,6 +23,8 @@ use App\Http\Controllers\InquiryManagementController;
 use App\Http\Controllers\AdminNotifyController;
 use App\Http\Controllers\AdminAnalyzeController;
 
+use App\Models\Inquiry;
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -46,6 +48,10 @@ Route::get('/exam', [ExamController::class, 'viewExamPage'])->name('exam')->midd
 Route::get('/notice', [NoticeController::class, 'viewNoticePage'])->name('notice')->middleware('auth');
 Route::get('/about', [AboutUsController::class, 'viewAboutUsPage'])->name('about')->middleware('auth');
 Route::get('/contact', [ContactUsController::class, 'viewContactUsPage'])->name('contact')->middleware('auth');
+
+
+Route::post('/contact', [ContactUsController::class, 'submitContactUsForm'])->name('contact_us.submit')->middleware('auth');
+Route::post('/contact/inquiry', [ContactUsController::class, 'submitInquiryForm'])->name('submit_inquiry')->middleware('auth');
 
 // Admin side protected routes
 Route::middleware(['auth', 'admin'])->group(function () {

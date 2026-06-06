@@ -266,26 +266,28 @@
             <div class="form-card">
                 <h2>Contact Us</h2>
 
-                <form method="POST" action="#">
+                <form method="POST" action="{{ route('contact_us.submit') }}">
+
+                    @csrf
 
                     <div class="form-group">
                         <label>Name</label>
-                        <input type="text" placeholder="Enter your name" required>
+                        <input type="text" placeholder="Enter your name" required name="name">
                     </div>
 
                     <div class="form-group">
                         <label>Telephone</label>
-                        <input type="tel" placeholder="Enter telephone number" required>
+                        <input type="tel" placeholder="Enter telephone number" required name="mobile_no">
                     </div>
 
                     <div class="form-group">
                         <label>Email</label>
-                        <input type="email" placeholder="Enter email" required>
+                        <input type="email" placeholder="Enter email" required name="email">
                     </div>
 
                     <div class="form-group">
                         <label>Message</label>
-                        <textarea rows="5" placeholder="Write your message" required></textarea>
+                        <textarea rows="5" placeholder="Write your message" required name="message"></textarea>
                     </div>
 
                     <button class="btn">Send Message</button>
@@ -297,16 +299,18 @@
             <div class="form-card">
                 <h2>Inquiry Form</h2>
 
-                <form method="POST" action="#">
+                <form method="POST" action="{{ route('submit_inquiry') }}">
+
+                    @csrf
 
                     <div class="form-group">
                         <label>Subject</label>
-                        <input type="text" placeholder="Enter subject" required>
+                        <input type="text" placeholder="Enter subject" required name="subject">
                     </div>
 
                     <div class="form-group">
                         <label>Message</label>
-                        <textarea rows="8" placeholder="Write your inquiry..." required></textarea>
+                        <textarea rows="8" placeholder="Write your inquiry..." required name="message"></textarea>
                     </div>
 
                     <button class="btn">Submit Inquiry</button>
