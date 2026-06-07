@@ -15,4 +15,14 @@ class Attempt extends Model
         'score',
         'submitted'
     ];
+
+    public function assessment()
+    {
+        return $this->belongsTo(Assessment::class);
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(\App\Models\User::class);
+    }
 }

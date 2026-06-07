@@ -22,6 +22,7 @@ use App\Http\Controllers\ExamResultController;
 use App\Http\Controllers\InquiryManagementController;
 use App\Http\Controllers\AdminNotifyController;
 use App\Http\Controllers\AdminAnalyzeController;
+use App\Http\Controllers\TeacherExamMarksController;
 
 use App\Models\Inquiry;
 
@@ -76,6 +77,10 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::get('/admin/inquiryManagement', [InquiryManagementController::class, 'viewInquiryManagementPage'])->name('inquiryManagement');
     Route::get('/admin/notify', [AdminNotifyController::class, 'viewNotifyPage'])->name('adminNotify');
     Route::get('/admin/analyze', [AdminAnalyzeController::class, 'viewAnalyzePage'])->name('adminAnalyze');
+
+
+    Route::put('/admin/userManagement/{id}', [UserManagementController::class, 'update'])->name('userManagement.update');
+    Route::delete('/admin/userManagement/{id}', [UserManagementController::class, 'destroy'])->name('userManagement.destroy');
 });
 
 
@@ -97,4 +102,8 @@ Route::middleware(['auth', 'teacher'])->group(function () {
         '/assessment/{id}/questions',
         [ExamManagementController::class, 'storeQuestion']
     )->name('assessment.questions.store');
+
+    Route::get('/teacher/examMarks', [TeacherExamMarksController::class, 'viewExamMarks'])->name('teacher.examMarks');
+
+    Route::get('/exam-marks', [ExamManagementController::class, 'examMarks'])->name('examMarks');
 });

@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Assessment;
-
+use App\Models\Attempt;  // add this at the top with other imports
 
 use App\Models\Question;
 
@@ -76,5 +76,20 @@ class ExamManagementController extends Controller
         ]);
 
         return back()->with('success', 'Question added successfully');
+    }
+
+
+
+
+
+
+    public function examMarks()
+    {
+        $attempts = Attempt::with(['assessment', 'user'])
+            ->where('submitted', true)
+            ->latest()
+            ->get();
+
+        return view('teacher.examMarks', compact('attempts'));
     }
 }

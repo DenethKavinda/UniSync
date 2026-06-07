@@ -4,20 +4,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Teacher Sidebar Fixed</title>
+    <title>Teacher Sidebar</title>
 
     <style>
         :root {
             --dark-purple: #2b0a3d;
             --dark-blue: #0a1a3d;
-            --black: #0b0b0f;
+            --black: #07070c;
             --light-blue: #4da3ff;
             --light-purple: #b57bff;
             --pink: #ff4fd8;
-            --white: #ffffff;
         }
 
-        /* RESET */
         * {
             margin: 0;
             padding: 0;
@@ -25,7 +23,7 @@
         }
 
         body {
-            font-family: Segoe UI, sans-serif;
+            font-family: 'Segoe UI', sans-serif;
             background: linear-gradient(135deg, var(--black), var(--dark-blue));
             color: white;
             display: flex;
@@ -39,13 +37,15 @@
             left: 0;
             height: 100vh;
             width: 260px;
-            background: linear-gradient(180deg, var(--dark-purple), var(--dark-blue));
+            background: rgba(20, 10, 40, 0.95);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-right: 1px solid rgba(255, 255, 255, 0.08);
             padding: 20px 12px;
             transition: 0.35s ease;
             box-shadow: 5px 0 20px rgba(0, 0, 0, 0.5);
         }
 
-        /* COLLAPSED */
         .sidebar.collapsed {
             width: 80px;
         }
@@ -83,45 +83,35 @@
             margin-top: 10px;
         }
 
-        /* LINKS FIX (IMPORTANT PART) */
         ul li a {
             display: flex;
             align-items: center;
             gap: 12px;
-
             padding: 12px;
             margin: 8px 0;
-
             border-radius: 12px;
             text-decoration: none;
             color: white;
-
             background: rgba(255, 255, 255, 0.06);
-
             white-space: nowrap;
             overflow: hidden;
-
             transition: 0.3s;
         }
 
-        /* REMOVE BLOCK ISSUE */
         ul li a span {
             transition: 0.2s;
         }
 
-        /* HOVER */
         ul li a:hover {
             background: linear-gradient(90deg, var(--light-purple), var(--light-blue));
             transform: translateX(6px);
             box-shadow: 0 0 15px rgba(181, 123, 255, 0.4);
         }
 
-        /* ACTIVE */
         ul li a.active {
             background: linear-gradient(90deg, var(--pink), var(--light-purple));
         }
 
-        /* ICON */
         .icon {
             width: 22px;
             height: 22px;
@@ -129,24 +119,20 @@
             flex-shrink: 0;
         }
 
-        /* COLLAPSE TEXT FIX (KEY FIX) */
         .sidebar.collapsed .text {
             display: none;
         }
 
-        /* CENTER ICON WHEN COLLAPSED */
         .sidebar.collapsed ul li a {
             justify-content: center;
             padding: 14px 0;
         }
 
-        /* REMOVE EXTRA BACKGROUND BLOCK LOOK */
         .sidebar.collapsed ul li a {
             margin: 10px auto;
             width: 50px;
         }
 
-        /* MAIN CONTENT FIX */
         .main {
             margin-left: 260px;
             padding: 30px;
@@ -158,12 +144,6 @@
             margin-left: 80px;
         }
 
-        /* TITLE */
-        h1 {
-            margin-bottom: 10px;
-        }
-
-        /* ANIMATION GLOW */
         .glow {
             position: absolute;
             width: 300px;
@@ -237,11 +217,20 @@
                     <span class="text">Notify</span>
                 </a>
             </li>
+
+            <li>
+                <a href="{{ route('teacher.examMarks') }}">
+                    <svg class="icon" viewBox="0 0 24 24">
+                        <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z" />
+                    </svg>
+                    <span class="text">Exam Marks</span>
+                </a>
+            </li>
         </ul>
+
     </div>
 
     <div class="main">
-
     </div>
 
     <script>
