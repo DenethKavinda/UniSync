@@ -43,11 +43,26 @@ Route::get('/register', [RegisterController::class, 'viewRegisterPage'])->name('
 Route::post('/register', [RegisterController::class, 'storeRegisterUsers'])->name('register.store');
 
 //User Side protected routes
-Route::get('/home', [HomeController::class, 'viewHomePage'])->name('home')->middleware('auth');
-Route::get('/exam', [ExamController::class, 'viewExamPage'])->name('exam')->middleware('auth');
-Route::get('/notice', [NoticeController::class, 'viewNoticePage'])->name('notice')->middleware('auth');
-Route::get('/about', [AboutUsController::class, 'viewAboutUsPage'])->name('about')->middleware('auth');
-Route::get('/contact', [ContactUsController::class, 'viewContactUsPage'])->name('contact')->middleware('auth');
+Route::get('/student/home', [HomeController::class, 'viewHomePage'])->name('home')->middleware('auth');
+Route::get('/student/exam', [ExamController::class, 'viewExamPage'])->name('exam')->middleware('auth');
+Route::get('/student/notice', [NoticeController::class, 'viewNoticePage'])->name('notice')->middleware('auth');
+Route::get('/student/about', [AboutUsController::class, 'viewAboutUsPage'])->name('about')->middleware('auth');
+Route::get('/student/contact', [ContactUsController::class, 'viewContactUsPage'])->name('contact')->middleware('auth');
+
+Route::get(
+    '/student/exams',
+    [ExamController::class, 'index']
+)->name('student.exams')->middleware('auth');
+
+Route::get(
+    '/student/exam/{id}',
+    [ExamController::class, 'start']
+)->name('student.exam.start')->middleware('auth');
+
+Route::post(
+    '/student/exam/{id}/submit',
+    [ExamController::class, 'submit']
+)->name('student.exam.submit')->middleware('auth');
 
 
 Route::post('/contact', [ContactUsController::class, 'submitContactUsForm'])->name('contact_us.submit')->middleware('auth');
@@ -70,4 +85,16 @@ Route::middleware(['auth', 'teacher'])->group(function () {
     Route::get('/teacher/examManagement', [ExamManagementController::class, 'viewExamManagementPage'])->name('examManagement');
     Route::get('/teacher/analyze', [TeacherAnalyzeController::class, 'viewAnalyzePage'])->name('teacherAnalyze');
     Route::get('/teacher/notify', [TeacherNotifyController::class, 'viewNotifyPage'])->name('teacherNotify');
+
+    Route::post('/teacher/examManagement', [ExamManagementController::class, 'store'])->name('assessment.store');
+
+    Route::get(
+        '/assessment/{id}/questions',
+        [ExamManagementController::class, 'questionPage']
+    )->name('assessment.questions');
+
+    Route::post(
+        '/assessment/{id}/questions',
+        [ExamManagementController::class, 'storeQuestion']
+    )->name('assessment.questions.store');
 });

@@ -37,7 +37,7 @@ class LoginController extends Controller
                 return redirect('/teacher/teacherdashboard');
             }
 
-            return redirect('/home');
+            return redirect('/student/home');
         }
 
         return redirect()->back()->with('error', 'Invalid credentials');

@@ -8,6 +8,6 @@ class NoticeController extends Controller
 {
     public function viewNoticePage()
     {
-        return view('notice');
+        return view('student.notice');
     }
 }

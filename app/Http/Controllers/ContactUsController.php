@@ -10,7 +10,7 @@ class ContactUsController extends Controller
 {
     public function viewContactUsPage()
     {
-        return view('contactUs');
+        return view('student.contactUs');
     }
 
     public function submitContactUsForm(Request $request)
