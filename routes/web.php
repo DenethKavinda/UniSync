@@ -30,11 +30,6 @@ use App\Models\Inquiry;
 |--------------------------------------------------------------------------
 | Web Routes
 |--------------------------------------------------------------------------
-|
-| Here is where you can register web routes for your application. These
-| routes are loaded by the RouteServiceProvider and all of them will
-| be assigned to the "web" middleware group. Make something great!
-|
 */
 
 Route::get('/', [LoginController::class, 'viewLoginPage'])->name('login');
@@ -43,31 +38,21 @@ Route::post('/', [LoginController::class, 'authenticate'])->name('login.authenti
 Route::get('/register', [RegisterController::class, 'viewRegisterPage'])->name('register');
 Route::post('/register', [RegisterController::class, 'storeRegisterUsers'])->name('register.store');
 
-//User Side protected routes
-Route::get('/student/home', [HomeController::class, 'viewHomePage'])->name('home')->middleware('auth');
-Route::get('/student/exam', [ExamController::class, 'viewExamPage'])->name('exam')->middleware('auth');
-Route::get('/student/notice', [NoticeController::class, 'viewNoticePage'])->name('notice')->middleware('auth');
-Route::get('/student/about', [AboutUsController::class, 'viewAboutUsPage'])->name('about')->middleware('auth');
-Route::get('/student/contact', [ContactUsController::class, 'viewContactUsPage'])->name('contact')->middleware('auth');
+// User Side protected routes
+Route::middleware('auth')->group(function () {
+    Route::get('/student/home', [HomeController::class, 'viewHomePage'])->name('home');
+    Route::get('/student/exam', [ExamController::class, 'viewExamPage'])->name('exam');
+    Route::get('/student/notice', [NoticeController::class, 'viewNoticePage'])->name('notice');
+    Route::get('/student/about', [AboutUsController::class, 'viewAboutUsPage'])->name('about');
+    Route::get('/student/contact', [ContactUsController::class, 'viewContactUsPage'])->name('contact');
 
-Route::get(
-    '/student/exams',
-    [ExamController::class, 'index']
-)->name('student.exams')->middleware('auth');
+    Route::get('/student/exams', [ExamController::class, 'index'])->name('student.exams');
+    Route::get('/student/exam/{id}', [ExamController::class, 'start'])->name('student.exam.start');
+    Route::post('/student/exam/{id}/submit', [ExamController::class, 'submit'])->name('student.exam.submit');
 
-Route::get(
-    '/student/exam/{id}',
-    [ExamController::class, 'start']
-)->name('student.exam.start')->middleware('auth');
-
-Route::post(
-    '/student/exam/{id}/submit',
-    [ExamController::class, 'submit']
-)->name('student.exam.submit')->middleware('auth');
-
-
-Route::post('/contact', [ContactUsController::class, 'submitContactUsForm'])->name('contact_us.submit')->middleware('auth');
-Route::post('/contact/inquiry', [ContactUsController::class, 'submitInquiryForm'])->name('submit_inquiry')->middleware('auth');
+    Route::post('/contact', [ContactUsController::class, 'submitContactUsForm'])->name('contact_us.submit');
+    Route::post('/contact/inquiry', [ContactUsController::class, 'submitInquiryForm'])->name('submit_inquiry');
+});
 
 // Admin side protected routes
 Route::middleware(['auth', 'admin'])->group(function () {
@@ -78,11 +63,13 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::get('/admin/notify', [AdminNotifyController::class, 'viewNotifyPage'])->name('adminNotify');
     Route::get('/admin/analyze', [AdminAnalyzeController::class, 'viewAnalyzePage'])->name('adminAnalyze');
 
-
+    // User Resource Actions
+    Route::post('/admin/userManagement', [UserManagementController::class, 'store'])->name('userManagement.store');
     Route::put('/admin/userManagement/{id}', [UserManagementController::class, 'update'])->name('userManagement.update');
     Route::delete('/admin/userManagement/{id}', [UserManagementController::class, 'destroy'])->name('userManagement.destroy');
-});
 
+    Route::delete('/admin/inquiryManagement/{id}', [InquiryManagementController::class, 'destroy'])->name('inquiryManagement.destroy');
+});
 
 // Teacher side protected routes
 Route::middleware(['auth', 'teacher'])->group(function () {
@@ -92,18 +79,9 @@ Route::middleware(['auth', 'teacher'])->group(function () {
     Route::get('/teacher/notify', [TeacherNotifyController::class, 'viewNotifyPage'])->name('teacherNotify');
 
     Route::post('/teacher/examManagement', [ExamManagementController::class, 'store'])->name('assessment.store');
-
-    Route::get(
-        '/assessment/{id}/questions',
-        [ExamManagementController::class, 'questionPage']
-    )->name('assessment.questions');
-
-    Route::post(
-        '/assessment/{id}/questions',
-        [ExamManagementController::class, 'storeQuestion']
-    )->name('assessment.questions.store');
+    Route::get('/assessment/{id}/questions', [ExamManagementController::class, 'questionPage'])->name('assessment.questions');
+    Route::post('/assessment/{id}/questions', [ExamManagementController::class, 'storeQuestion'])->name('assessment.questions.store');
 
     Route::get('/teacher/examMarks', [TeacherExamMarksController::class, 'viewExamMarks'])->name('teacher.examMarks');
-
     Route::get('/exam-marks', [ExamManagementController::class, 'examMarks'])->name('examMarks');
 });
