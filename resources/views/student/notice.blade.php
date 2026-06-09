@@ -6,8 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>UniSync | Notices</title>
 
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap"
-        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
     <style>
         * {
@@ -19,11 +18,7 @@
 
         body {
             min-height: 100vh;
-            background: linear-gradient(135deg,
-                    #020617,
-                    #0f172a,
-                    #312e81,
-                    #4c1d95);
+            background: linear-gradient(135deg, #020617, #0f172a, #312e81, #4c1d95);
             color: white;
             overflow-x: hidden;
         }
@@ -61,12 +56,7 @@
             font-size: 60px;
             font-weight: 800;
             min-height: 80px;
-
-            background: linear-gradient(90deg,
-                    #60a5fa,
-                    #a855f7,
-                    #ec4899);
-
+            background: linear-gradient(90deg, #60a5fa, #a855f7, #ec4899);
             background-clip: text;
             -webkit-background-clip: text;
             color: transparent;
@@ -84,6 +74,9 @@
         .search-box {
             max-width: 700px;
             margin: 35px auto;
+        }
+
+        .search-form {
             display: flex;
             gap: 15px;
         }
@@ -105,9 +98,7 @@
             cursor: pointer;
             font-weight: 600;
             color: white;
-            background: linear-gradient(135deg,
-                    #60a5fa,
-                    #a855f7);
+            background: linear-gradient(135deg, #60a5fa, #a855f7);
         }
 
         .stats {
@@ -166,6 +157,9 @@
             border-radius: 20px;
             padding: 25px;
             transition: .4s;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
         }
 
         .notice-card:hover {
@@ -179,6 +173,8 @@
             font-size: 12px;
             font-weight: 600;
             margin-bottom: 15px;
+            text-transform: uppercase;
+            width: fit-content;
         }
 
         .important {
@@ -203,9 +199,34 @@
             margin-bottom: 15px;
         }
 
+        /* Attachment Links Setup */
+        .attachments-wrapper {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+
+        .attachment-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: #60a5fa;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            width: fit-content;
+        }
+
+        .attachment-link:hover {
+            text-decoration: underline;
+            color: #a855f7;
+        }
+
         .notice-date {
             color: #94a3b8;
             font-size: 14px;
+            margin-top: auto;
         }
 
         .cursor {
@@ -220,12 +241,11 @@
         }
 
         @media(max-width:768px) {
-
             .hero h1 {
                 font-size: 40px;
             }
 
-            .search-box {
+            .search-form {
                 flex-direction: column;
             }
         }
@@ -240,104 +260,70 @@
     @include('component.nav')
 
     <section class="hero">
-
         <h1 id="typing" class="cursor"></h1>
-
-        <p>
-            Stay informed with the latest university announcements,
-            examination updates, academic schedules and important events.
-        </p>
+        <p>Stay informed with the latest university announcements, examination updates, academic schedules and important events.</p>
 
         <div class="search-box">
-            <input type="text" placeholder="Search notices...">
-            <button>Search</button>
+            <form action="{{ route('student.notices') }}" method="GET" class="search-form">
+                <input type="text" name="search" placeholder="Search notices..." value="{{ request('search') }}">
+                <button type="submit">Search</button>
+            </form>
         </div>
-
     </section>
 
     <section class="stats">
-
         <div class="stat-card">
-            <h2>48</h2>
+            <h2>{{ $totalNotices ?? 0 }}</h2>
             <p>Total Notices</p>
         </div>
-
         <div class="stat-card">
-            <h2>12</h2>
+            <h2>{{ $importantCount ?? 0 }}</h2>
             <p>Important Updates</p>
         </div>
-
         <div class="stat-card">
-            <h2>5</h2>
+            <h2>{{ $urgentCount ?? 0 }}</h2>
             <p>Urgent Notices</p>
         </div>
-
     </section>
 
     <h2 class="section-title">Latest Notices</h2>
 
     <section class="notice-grid">
-
+        @forelse($notices as $notice)
         <div class="notice-card">
-            <span class="badge urgent">URGENT</span>
+            <div>
+                <span class="badge {{ $notice->badge_type }}">{{ $notice->badge_type }}</span>
 
-            <h3>Examination Schedule Updated</h3>
+                <h3>{{ $notice->title }}</h3>
+                <p>{{ $notice->message }}</p>
 
-            <p>
-                The final examination timetable has been revised.
-                Students are advised to check the latest schedule.
-            </p>
+                @if($notice->pdf_path || $notice->link_url)
+                <div class="attachments-wrapper">
+                    @if($notice->pdf_path)
+                    <a href="{{ asset($notice->pdf_path) }}" class="attachment-link" target="_blank">
+                        📄 View Attached Document (PDF)
+                    </a>
+                    @endif
+
+                    @if($notice->link_url)
+                    <a href="{{ $notice->link_url }}" class="attachment-link" target="_blank">
+                        🔗 Visit External Link / Form
+                    </a>
+                    @endif
+                </div>
+                @endif
+            </div>
 
             <div class="notice-date">
-                Posted: 05 June 2026
+                Posted: {{ $notice->created_at->format('d M Y') }}
             </div>
         </div>
-
-        <div class="notice-card">
-            <span class="badge important">IMPORTANT</span>
-
-            <h3>Course Registration Open</h3>
-
-            <p>
-                Registration for Semester 2 courses is now open.
-                Complete your enrollment before the deadline.
-            </p>
-
-            <div class="notice-date">
-                Posted: 04 June 2026
-            </div>
+        @empty
+        <div class="notice-card" style="grid-column: 1/-1; text-align: center; padding: 40px;">
+            <h3>No Notices Found</h3>
+            <p>Check back later or change your search query parameters.</p>
         </div>
-
-        <div class="notice-card">
-            <span class="badge new">NEW</span>
-
-            <h3>University Sports Meet</h3>
-
-            <p>
-                Applications are now being accepted for the annual
-                university sports festival.
-            </p>
-
-            <div class="notice-date">
-                Posted: 03 June 2026
-            </div>
-        </div>
-
-        <div class="notice-card">
-            <span class="badge important">IMPORTANT</span>
-
-            <h3>Library Maintenance Notice</h3>
-
-            <p>
-                The university digital library system will be unavailable
-                due to scheduled maintenance.
-            </p>
-
-            <div class="notice-date">
-                Posted: 02 June 2026
-            </div>
-        </div>
-
+        @endforelse
     </section>
 
     <script>
@@ -351,7 +337,6 @@
                 setTimeout(typeWriter, 90);
             }
         }
-
         window.onload = typeWriter;
     </script>
 

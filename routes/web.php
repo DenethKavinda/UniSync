@@ -42,7 +42,7 @@ Route::post('/register', [RegisterController::class, 'storeRegisterUsers'])->nam
 Route::middleware('auth')->group(function () {
     Route::get('/student/home', [HomeController::class, 'viewHomePage'])->name('home');
     Route::get('/student/exam', [ExamController::class, 'viewExamPage'])->name('exam');
-    Route::get('/student/notice', [NoticeController::class, 'viewNoticePage'])->name('notice');
+    Route::get('/student/notice', [NoticeController::class, 'viewNoticePage'])->name('student.notices');
     Route::get('/student/about', [AboutUsController::class, 'viewAboutUsPage'])->name('about');
     Route::get('/student/contact', [ContactUsController::class, 'viewContactUsPage'])->name('contact');
 
@@ -84,4 +84,9 @@ Route::middleware(['auth', 'teacher'])->group(function () {
 
     Route::get('/teacher/examMarks', [TeacherExamMarksController::class, 'viewExamMarks'])->name('teacher.examMarks');
     Route::get('/exam-marks', [ExamManagementController::class, 'examMarks'])->name('examMarks');
+
+    Route::post('/teacher/notify', [NoticeController::class, 'store'])->name('teacherNotify.store');
+    Route::get('/teacher/notify/{id}/edit', [NoticeController::class, 'edit'])->name('teacherNotify.edit');
+    Route::put('/teacher/notify/{id}', [NoticeController::class, 'update'])->name('teacherNotify.update');
+    Route::delete('/teacher/notify/{id}', [NoticeController::class, 'destroy'])->name('teacherNotify.destroy');
 });

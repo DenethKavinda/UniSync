@@ -283,7 +283,7 @@
                     Explore Exams
                 </a>
 
-                <a href="{{ route('notice') }}" class="btn btn-secondary">
+                <a href="{{ route('student.notices') }}" class="btn btn-secondary">
                     View Notices
                 </a>
             </div>
