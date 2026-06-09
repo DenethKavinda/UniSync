@@ -19,14 +19,23 @@
         padding: 24px;
     }
 
+    .card-title-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 16px;
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+
     .card-title {
         font-size: 16px;
         font-weight: 700;
         color: var(--text-main);
-        margin-bottom: 16px;
         display: flex;
         align-items: center;
         gap: 8px;
+        margin-bottom: 0;
     }
 
     .card-title i {
@@ -152,6 +161,17 @@
         color: white;
     }
 
+    .btn-secondary {
+        background-color: rgba(255, 255, 255, 0.05);
+        border: 1px solid var(--border-color);
+        color: var(--text-main);
+    }
+
+    .btn-secondary:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+        border-color: rgba(255, 255, 255, 0.2);
+    }
+
     .btn-delete {
         background-color: rgba(220, 53, 69, 0.1);
         border: 1px solid rgba(220, 53, 69, 0.2);
@@ -260,7 +280,7 @@
 
     @if($errors->any())
     <div class="alert-danger">
-        <div style="font-weight: 700; margin-bottom: 4px;"><i class="ti ti-alert-triangle"></i> Registration Failed:</div>
+        <div style="font-weight: 700; margin-bottom: 4px;"><i class="ti ti-alert-triangle"></i> System Request Failed:</div>
         <ul class="alert-list">
             @foreach($errors->all() as $error)
             <li>{{ $error }}</li>
@@ -270,7 +290,37 @@
     @endif
 
     <div class="admin-card">
-        <h2 class="card-title"><i class="ti ti-user-plus"></i> Register New User Record</h2>
+        <div class="card-title-row">
+            <h2 class="card-title"><i class="ti ti-file-spreadsheet"></i> Bulk Import Users via Excel Sheet</h2>
+        </div>
+
+        <form action="{{ route('userManagement.import') }}" method="POST" enctype="multipart/form-data">
+            @csrf
+            <div style="display: flex; gap: 16px; align-items: flex-end; flex-wrap: wrap;">
+                <div class="form-group" style="flex: 1; min-width: 280px;">
+                    <label class="form-label">Choose Excel/CSV Matrix File</label>
+                    <input type="file" name="excel_file" class="input-field" accept=".xlsx, .xls, .csv" required style="padding: 7px 12px;">
+                </div>
+                <div>
+                    <button type="submit" class="btn btn-primary" style="background-color: #28a745; width: 100%;">
+                        <i class="ti ti-upload"></i> Upload & Process Sheet
+                    </button>
+                </div>
+            </div>
+            <div style="margin-top: 12px; font-size: 11px; color: var(--text-muted); line-height: 1.4;">
+                <strong>Required Configuration Rules:</strong> Spreadsheet header row data layout properties must be exactly matched as:
+                <code style="color: var(--accent); background: rgba(157,91,250,0.1); padding: 2px 4px; border-radius: 4px;">name</code>,
+                <code style="color: var(--accent); background: rgba(157,91,250,0.1); padding: 2px 4px; border-radius: 4px;">email</code>,
+                <code style="color: var(--accent); background: rgba(157,91,250,0.1); padding: 2px 4px; border-radius: 4px;">password</code>, and
+                <code style="color: var(--accent); background: rgba(157,91,250,0.1); padding: 2px 4px; border-radius: 4px;">role</code> (Accepted roles: user, teacher, admin).
+            </div>
+        </form>
+    </div>
+
+    <div class="admin-card">
+        <div class="card-title-row">
+            <h2 class="card-title"><i class="ti ti-user-plus"></i> Register New User Record</h2>
+        </div>
 
         <form action="{{ route('userManagement.store') }}" method="POST">
             @csrf
@@ -309,7 +359,12 @@
     </div>
 
     <div class="admin-card">
-        <h2 class="card-title"><i class="ti ti-users"></i> Registered Users Ledger</h2>
+        <div class="card-title-row">
+            <h2 class="card-title"><i class="ti ti-users"></i> Registered Users Ledger</h2>
+            <a href="{{ route('userManagement.export') }}" class="btn btn-secondary">
+                <i class="ti ti-file-download" style="color: var(--accent);"></i> Export Ledger to Excel
+            </a>
+        </div>
 
         <table class="user-table">
             <thead>

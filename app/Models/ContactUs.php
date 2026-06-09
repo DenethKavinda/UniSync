@@ -14,5 +14,6 @@ class ContactUs extends Model
         'mobile_no',
         'email',
         'message',
+        'status',
     ];
 }

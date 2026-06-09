@@ -69,6 +69,13 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::delete('/admin/userManagement/{id}', [UserManagementController::class, 'destroy'])->name('userManagement.destroy');
 
     Route::delete('/admin/inquiryManagement/{id}', [InquiryManagementController::class, 'destroy'])->name('inquiryManagement.destroy');
+
+    Route::post('/admin/userManagement/import', [UserManagementController::class, 'importExcel'])->name('userManagement.import');
+    Route::get('/admin/userManagement/export', [UserManagementController::class, 'exportExcel'])->name('userManagement.export');
+
+    Route::get('/admin/contactManagement', [ContactUsController::class, 'viewAdminContactPage'])->name('contactManagement');
+    Route::delete('/admin/contactManagement/{id}', [ContactUsController::class, 'destroy'])->name('contactManagement.destroy');
+    Route::post('/admin/contactManagement/{id}/reply', [ContactUsController::class, 'sendReplyEmail'])->name('contactManagement.reply');
 });
 
 // Teacher side protected routes

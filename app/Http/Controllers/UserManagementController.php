@@ -5,6 +5,9 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\RegisterUser;
 use Illuminate\Support\Facades\Hash;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Imports\UsersImport;
+use App\Exports\UsersExport;
 
 class UserManagementController extends Controller
 {
@@ -77,5 +80,41 @@ class UserManagementController extends Controller
         ]);
 
         return redirect()->route('userManagement')->with('success', 'New user account created successfully.');
+    }
+
+    /**
+     * Handle bulk uploading of user profiles via an Excel matrix spreadsheet.
+     */
+    public function importExcel(Request $request)
+    {
+        $request->validate([
+            'excel_file' => 'required|mimes:xlsx,xls,csv|max:10240', // Limit to 10MB
+        ]);
+
+        try {
+            Excel::import(new UsersImport, $request->file('excel_file'));
+
+            return redirect()->back()->with('success', 'Bulk users imported successfully from excel records!');
+        } catch (\Maatwebsite\Excel\Validators\ValidationException $e) {
+            $failures = $e->failures();
+            $errorMessages = [];
+
+            foreach ($failures as $failure) {
+                $errorMessages[] = "Row {$failure->row()} ({$failure->attribute()}): " . implode(', ', $failure->errors());
+            }
+
+            return redirect()->back()->withErrors($errorMessages)->withInput();
+        } catch (\Exception $ex) {
+            return redirect()->back()->withErrors(['Excel processing encountered a critical runtime exception: ' . $ex->getMessage()]);
+        }
+    }
+
+    /**
+     * Download the entire database users ledger as an Excel spreadsheet stream.
+     */
+    public function exportExcel()
+    {
+        $fileName = 'registered_users_' . date('Y_m_d_His') . '.xlsx';
+        return Excel::download(new UsersExport, $fileName);
     }
 }

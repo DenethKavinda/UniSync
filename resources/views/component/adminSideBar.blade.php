@@ -29,81 +29,67 @@
         }
 
         body {
-            background: var(--bg-base);
             font-family: 'DM Sans', sans-serif;
+            background-color: var(--bg-base);
             color: var(--text-main);
-            height: 100vh;
-            overflow: hidden;
+            overflow-x: hidden;
         }
 
-        .layout {
+        .layout-container {
             display: flex;
-            height: 100vh;
+            min-height: 100vh;
         }
 
-        /* ── SIDEBAR ── */
+        /* Sidebar Styling */
         .sidebar {
             width: var(--sidebar-width);
-            background: var(--bg-surface);
+            background-color: var(--bg-surface);
             border-right: 1px solid var(--border-color);
             display: flex;
             flex-direction: column;
-            flex-shrink: 0;
+            position: fixed;
+            height: 100vh;
+            z-index: 100;
         }
 
-        .sidebar-logo {
-            padding: 24px 20px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            border-bottom: 1px solid var(--border-color);
-            font-weight: 700;
-            font-size: 16px;
-            letter-spacing: -0.5px;
-        }
-
-        .sidebar-logo i {
-            color: var(--accent);
+        .sidebar-header {
+            padding: 24px;
             font-size: 20px;
-        }
-
-        .nav-wrap {
-            flex: 1;
-            padding: 16px 12px;
-            overflow-y: auto;
-        }
-
-        .nav-section-label {
-            font-size: 10px;
             font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            color: var(--text-muted);
-            padding: 10px 12px 6px;
+            letter-spacing: -0.5px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .sidebar-nav {
+            padding: 24px 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            flex: 1;
+            overflow-y: auto;
         }
 
         .nav-item {
             display: flex;
             align-items: center;
-            gap: 10px;
-            padding: 10px 12px;
-            border-radius: 8px;
+            gap: 12px;
+            padding: 12px 16px;
             color: var(--text-muted);
-            font-size: 14px;
             text-decoration: none;
-            margin-bottom: 2px;
-            transition: all 0.15s;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s ease;
         }
 
         .nav-item:hover {
             color: var(--text-main);
-            background: rgba(255, 255, 255, 0.04);
+            background-color: rgba(255, 255, 255, 0.02);
         }
 
         .nav-item.active {
-            color: var(--accent);
-            background: rgba(157, 91, 250, 0.08);
-            font-weight: 500;
+            color: #ffffff;
+            background-color: var(--accent);
         }
 
         .nav-icon {
@@ -112,47 +98,47 @@
 
         .nav-badge {
             margin-left: auto;
-            font-size: 11px;
-            background: rgba(255, 255, 255, 0.1);
+            background-color: rgba(255, 255, 255, 0.1);
             color: var(--text-main);
-            padding: 1px 6px;
-            border-radius: 4px;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 700;
         }
 
-        .nav-divider {
-            height: 1px;
-            background: var(--border-color);
-            margin: 12px 12px;
+        .nav-item.active .nav-badge {
+            background-color: rgba(255, 255, 255, 0.2);
         }
 
         .sidebar-footer {
-            padding: 16px 12px;
+            padding: 16px;
             border-top: 1px solid var(--border-color);
+            background-color: rgba(0, 0, 0, 0.1);
         }
 
         .user-card {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 12px;
             padding: 8px;
-            margin-bottom: 12px;
         }
 
         .avatar {
-            width: 32px;
-            height: 32px;
+            width: 36px;
+            height: 36px;
             border-radius: 50%;
-            background: rgba(255, 255, 255, 0.1);
+            background-color: var(--accent);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 12px;
             font-weight: 700;
+            font-size: 13px;
         }
 
         .user-name {
             font-size: 13px;
-            font-weight: 500;
+            font-weight: 700;
+            color: var(--text-main);
         }
 
         .user-role {
@@ -162,131 +148,116 @@
 
         .user-actions {
             display: flex;
-            gap: 6px;
+            gap: 8px;
+            margin-top: 12px;
+            padding: 0 8px;
         }
 
         .user-action-btn {
-            flex: 1;
-            padding: 8px;
-            border-radius: 6px;
-            background: transparent;
-            border: 1px solid var(--border-color);
-            color: var(--text-muted);
             font-size: 12px;
-            cursor: pointer;
-            text-align: center;
+            color: var(--text-muted);
             text-decoration: none;
+            transition: color 0.2s;
         }
 
         .user-action-btn:hover {
             color: var(--text-main);
-            border-color: rgba(255, 255, 255, 0.2);
         }
 
-        /* ── MAIN CONTENT AREA ── */
+        /* Main Content Styling */
         .main {
+            margin-left: var(--sidebar-width);
             flex: 1;
             display: flex;
             flex-direction: column;
-            overflow: hidden;
+            min-width: 0;
         }
 
         .topbar {
-            height: 56px;
-            background: var(--bg-surface);
+            height: 70px;
+            background-color: var(--bg-surface);
             border-bottom: 1px solid var(--border-color);
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 0 24px;
+            padding: 0 32px;
+            position: sticky;
+            top: 0;
+            z-index: 90;
         }
 
         .topbar-title {
-            font-size: 15px;
-            font-weight: 500;
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--text-main);
         }
 
         .topbar-right {
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 20px;
         }
 
         .search-bar {
             display: flex;
             align-items: center;
-            gap: 8px;
-            padding: 0 12px;
-            height: 32px;
-            border-radius: 6px;
-            background: var(--bg-base);
+            gap: 10px;
+            background-color: var(--bg-base);
             border: 1px solid var(--border-color);
+            padding: 8px 16px;
+            border-radius: 20px;
             color: var(--text-muted);
             font-size: 13px;
-            width: 180px;
+            width: 240px;
+            cursor: pointer;
         }
 
         .topbar-btn {
-            width: 32px;
-            height: 32px;
-            border-radius: 6px;
-            border: 1px solid var(--border-color);
-            background: transparent;
+            background: none;
+            border: none;
             color: var(--text-muted);
+            font-size: 20px;
+            cursor: pointer;
+            transition: color 0.2s;
             display: flex;
             align-items: center;
-            justify-content: center;
-            cursor: pointer;
         }
 
         .topbar-btn:hover {
             color: var(--text-main);
-            border-color: rgba(255, 255, 255, 0.2);
         }
 
         .content {
+            padding: 32px;
             flex: 1;
-            padding: 24px;
-            overflow-y: auto;
         }
     </style>
     @yield('styles')
 </head>
 
 <body>
-
-    <div class="layout">
-
+    <div class="layout-container">
         <aside class="sidebar">
-            <div class="sidebar-logo">
-                <i class="ti ti-shield-check"></i> AdminPanel
+            <div class="sidebar-header">
+                UniSync Admin
             </div>
-
-            <nav class="nav-wrap" aria-label="Main navigation">
-                <div class="nav-section-label">Overview</div>
-
-                <a href="{{ route('admindashboard') }}" class="nav-item {{ Route::is('admindashboard') ? 'active' : '' }}">
-                    <i class="ti ti-layout-dashboard nav-icon"></i> Dashboard
+            <nav class="sidebar-nav">
+                <a href="{{ route('admindashboard') }}" class="nav-item {{ Route::is('adminDashboard') ? 'active' : '' }}">
+                    <i class="ti ti-dashboard nav-icon"></i> Dashboard
                 </a>
-
                 <a href="{{ route('userManagement') }}" class="nav-item {{ Route::is('userManagement') ? 'active' : '' }}">
-                    <i class="ti ti-users nav-icon"></i> User Management
+                    <i class="ti ti-users nav-icon"></i> Users Management
                 </a>
-
-                <a href="{{ route('examResult') }}" class="nav-item {{ Route::is('examResult') ? 'active' : '' }}">
-                    <i class="ti ti-file-certificate nav-icon"></i> Exam Result
+                <a href="{{ route('adminNotify') }}" class="nav-item {{ Route::is('noticeManagement') ? 'active' : '' }}">
+                    <i class="ti ti-bulletin-board nav-icon"></i> Notices
                 </a>
-
-                <a href="{{ route('adminAnalyze') }}" class="nav-item {{ Route::is('adminAnalyze') ? 'active' : '' }}">
-                    <i class="ti ti-chart-bar nav-icon"></i> Analyze
-                </a>
-
-                <div class="nav-divider"></div>
-                <div class="nav-section-label">Support</div>
-
                 <a href="{{ route('inquiryManagement') }}" class="nav-item {{ Route::is('inquiryManagement') ? 'active' : '' }}">
                     <i class="ti ti-message-circle nav-icon"></i> Inquiries
                     <span class="nav-badge">{{ \App\Models\Inquiry::count() }}</span>
+                </a>
+                <a href="{{ route('contactManagement') }}" class="nav-item {{ Route::is('contactManagement') ? 'active' : '' }}">
+                    <i class="ti ti-mail nav-icon"></i> Contact Messages
+                    <span class="nav-badge">{{ \App\Models\ContactUs::count() }}</span>
                 </a>
             </nav>
 
@@ -309,7 +280,7 @@
             <header class="topbar">
                 <div class="topbar-title">@yield('page_title', 'Dashboard')</div>
                 <div class="topbar-right">
-                    <div class="search-bar"><i class="ti ti-search"></i> Search...</div>
+                    <div class="search-bar"><i class=\"ti ti-search\"></i> Search...</div>
                     <button class="topbar-btn"><i class="ti ti-bell"></i></button>
                 </div>
             </header>
