@@ -24,6 +24,8 @@ use App\Http\Controllers\AdminNotifyController;
 use App\Http\Controllers\AdminAnalyzeController;
 use App\Http\Controllers\TeacherExamMarksController;
 
+use App\Http\Controllers\ProfileController;
+
 use App\Models\Inquiry;
 
 /*
@@ -52,6 +54,13 @@ Route::middleware('auth')->group(function () {
 
     Route::post('/contact', [ContactUsController::class, 'submitContactUsForm'])->name('contact_us.submit');
     Route::post('/contact/inquiry', [ContactUsController::class, 'submitInquiryForm'])->name('submit_inquiry');
+
+    Route::middleware(['auth'])->group(function () {
+        Route::get('/profile', [ProfileController::class, 'index'])->name('profile');
+        Route::post('/profile/upload', [ProfileController::class, 'uploadImage'])->name('profile.upload');
+    });
+
+    Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 });
 
 // Admin side protected routes

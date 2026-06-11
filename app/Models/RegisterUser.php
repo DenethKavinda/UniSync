@@ -17,6 +17,7 @@ class RegisterUser extends Authenticatable
         'email',
         'password',
         'role',
+        'profile_image',
     ];
 
     protected $hidden = [
