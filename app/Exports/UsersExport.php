@@ -3,36 +3,51 @@
 namespace App\Exports;
 
 use App\Models\RegisterUser;
-use Maatwebsite\Excel\Concerns\FromCollection;
+use Maatwebsite\Excel\Concerns\FromQuery;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
 
-class UsersExport implements FromCollection, WithHeadings, WithMapping
+class UsersExport implements FromQuery, WithHeadings, WithMapping
 {
-    /**
-     * Retrieve the collection of users from the database.
-     */
-    public function collection()
+    protected $role;
+
+    // Receive the filter value from the controller configuration
+    public function __construct($role = null)
     {
-        return RegisterUser::all();
+        $this->role = $role;
     }
 
     /**
-     * Define the explicit matching header row for the Excel file.
+     * Construct database query scoped to chosen user criteria.
+     */
+    public function query()
+    {
+        $query = RegisterUser::query();
+
+        // If a specific legitimate role filter is applied, query only that data group
+        if ($this->role && in_array($this->role, ['user', 'teacher', 'admin'])) {
+            $query->where('role', $this->role);
+        }
+
+        return $query;
+    }
+
+    /**
+     * Table headings design setup structure.
      */
     public function headings(): array
     {
         return [
-            'id',
-            'name',
-            'email',
-            'role',
-            'created_at'
+            'ID',
+            'Full Name',
+            'Email Address',
+            'Assigned Role',
+            'Created At'
         ];
     }
 
     /**
-     * Map the database model attributes into row cell rows cleanly.
+     * Define the data map per single object item iteration.
      */
     public function map($user): array
     {
@@ -40,8 +55,8 @@ class UsersExport implements FromCollection, WithHeadings, WithMapping
             $user->id,
             $user->name,
             $user->email,
-            $user->role,
-            $user->created_at ? $user->created_at->toDateTimeString() : '',
+            ucfirst($user->role), // Capitalize role word
+            $user->created_at->toDateTimeString(),
         ];
     }
 }

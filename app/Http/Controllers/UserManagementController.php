@@ -110,11 +110,17 @@ class UserManagementController extends Controller
     }
 
     /**
-     * Download the entire database users ledger as an Excel spreadsheet stream.
+     * Download the database users ledger as an Excel spreadsheet stream (with role filtering support).
      */
-    public function exportExcel()
+    public function exportExcel(Request $request)
     {
-        $fileName = 'registered_users_' . date('Y_m_d_His') . '.xlsx';
-        return Excel::download(new UsersExport, $fileName);
+        // Capture specific role filter if appended (user, teacher, admin)
+        $role = $request->query('role');
+
+        // Dynamically name the file based on the filter scope
+        $prefix = $role && in_array($role, ['user', 'teacher', 'admin']) ? $role . '_users_' : 'all_users_';
+        $fileName = $prefix . date('Y_m_d_His') . '.xlsx';
+
+        return Excel::download(new UsersExport($role), $fileName);
     }
 }

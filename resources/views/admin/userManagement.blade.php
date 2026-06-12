@@ -137,6 +137,38 @@
         box-shadow: 0 0 0 2px rgba(157, 91, 250, 0.15);
     }
 
+    /* Filter Panel Section Control Styling */
+    .filter-controls-row {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 16px;
+        margin-bottom: 20px;
+        background: rgba(255, 255, 255, 0.01);
+        padding: 14px;
+        border-radius: 8px;
+        border: 1px solid rgba(255, 255, 255, 0.02);
+    }
+
+    .search-wrapper,
+    .filter-wrapper {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+    }
+
+    .search-input-icon {
+        position: absolute;
+        left: 12px;
+        bottom: 11px;
+        color: var(--text-muted);
+        font-size: 14px;
+    }
+
+    .search-wrapper .input-field {
+        padding-left: 34px;
+    }
+
     .btn {
         padding: 10px 16px;
         border: none;
@@ -361,12 +393,29 @@
     <div class="admin-card">
         <div class="card-title-row">
             <h2 class="card-title"><i class="ti ti-users"></i> Registered Users Ledger</h2>
-            <a href="{{ route('userManagement.export') }}" class="btn btn-secondary">
+            <a href="{{ route('userManagement.export') }}" id="ledgerExportBtn" class="btn btn-secondary" onclick="appendFilterToExport(this, event)">
                 <i class="ti ti-file-download" style="color: var(--accent);"></i> Export Ledger to Excel
             </a>
         </div>
 
-        <table class="user-table">
+        <div class="filter-controls-row">
+            <div class="search-wrapper">
+                <label class="form-label">Search Ledger Records</label>
+                <i class="ti ti-search search-input-icon"></i>
+                <input type="text" id="ledgerSearchInput" class="input-field" placeholder="Search by name or email address..." onkeyup="filterLedgerTable()">
+            </div>
+            <div class="filter-wrapper">
+                <label class="form-label">Filter by System Access Role</label>
+                <select id="ledgerRoleFilter" class="select-field" onchange="filterLedgerTable()">
+                    <option value="all">All Roles</option>
+                    <option value="user">User (Student)</option>
+                    <option value="teacher">Teacher</option>
+                    <option value="admin">Admin</option>
+                </select>
+            </div>
+        </div>
+
+        <table class="user-table" id="ledgerUserTable">
             <thead>
                 <tr>
                     <th style="width: 60px;">ID</th>
@@ -404,10 +453,14 @@
                     </td>
                 </tr>
                 @empty
-                <tr>
+                <tr class="no-records-row">
                     <td colspan="5" style="text-align: center; color: var(--text-muted); padding: 40px 0;">No registered users found in the system database records.</td>
                 </tr>
                 @endforelse
+
+                <tr id="noMatchesRow" style="display: none;">
+                    <td colspan="5" style="text-align: center; color: var(--text-muted); padding: 40px 0;">No matching ledger elements found for current filter criteria.</td>
+                </tr>
             </tbody>
         </table>
     </div>
@@ -456,6 +509,72 @@
         }
     });
 
+    // Real-time live filtering handler logic
+    function filterLedgerTable() {
+        const searchVal = document.getElementById('ledgerSearchInput').value.toLowerCase().trim();
+        const roleVal = document.getElementById('ledgerRoleFilter').value;
+        const table = document.getElementById('ledgerUserTable');
+        const rows = table.getElementsByTagName('tbody')[0].getElementsByTagName('tr');
+
+        let visibleCount = 0;
+        let originalRecordsExist = true;
+
+        for (let i = 0; i < rows.length; i++) {
+            const row = rows[i];
+
+            // Skip helper structure row components
+            if (row.id === 'noMatchesRow') continue;
+            if (row.classList.contains('no-records-row')) {
+                originalRecordsExist = false;
+                continue;
+            }
+
+            const nameInput = row.querySelector('input[name="name"]');
+            const emailInput = row.querySelector('input[name="email"]');
+            const roleSelect = row.querySelector('select[name="role"]');
+
+            if (!nameInput || !emailInput || !roleSelect) continue;
+
+            const nameText = nameInput.value.toLowerCase();
+            const emailText = emailInput.value.toLowerCase();
+            const chosenRole = roleSelect.value;
+
+            const matchesSearch = nameText.includes(searchVal) || emailText.includes(searchVal);
+            const matchesRole = (roleVal === 'all') || (chosenRole === roleVal);
+
+            if (matchesSearch && matchesRole) {
+                row.style.display = '';
+                visibleCount++;
+            } else {
+                row.style.display = 'none';
+            }
+        }
+
+        // Handle structural fallback display tracking
+        const noMatchesRow = document.getElementById('noMatchesRow');
+        if (noMatchesRow && originalRecordsExist) {
+            noMatchesRow.style.display = (visibleCount === 0) ? '' : 'none';
+        }
+    }
+
+    // Appends the current selection to Excel export URL dynamically
+    function appendFilterToExport(element, event) {
+        event.preventDefault();
+
+        const roleFilter = document.getElementById('ledgerRoleFilter').value;
+        const baseRoute = "{{ route('userManagement.export') }}";
+
+        // Append selected role as query string parameter if it isn't 'all'
+        if (roleFilter && roleFilter !== 'all') {
+            element.href = `${baseRoute}?role=${roleFilter}`;
+        } else {
+            element.href = baseRoute;
+        }
+
+        // Trigger file streaming request download pipeline
+        window.location.href = element.href;
+    }
+
     function autoSaveUser(element) {
         if (element.hasAttribute('required') && !element.value.trim()) {
             element.style.borderColor = '#dc3545';
@@ -502,6 +621,9 @@
                 setTimeout(() => {
                     element.style.borderColor = 'var(--border-color)';
                 }, 1200);
+
+                // Run live filter update checking in case user changed elements while filtering is live
+                filterLedgerTable();
             })
             .catch(error => {
                 console.error('AJAX tracking execution breakdown route trace:', error);
