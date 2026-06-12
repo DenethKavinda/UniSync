@@ -176,7 +176,7 @@
         border: 1px solid var(--border-color);
         border-radius: 12px;
         width: 100%;
-        max-width: 500px;
+        max-width: 550px;
         padding: 24px;
         box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
         transform: scale(0.9);
@@ -309,7 +309,7 @@
     <div class="custom-modal">
         <div class="modal-title"><i class="ti ti-message-share" style="color: var(--accent);"></i> Compose Outbound Email Response</div>
 
-        <form id="replyForm" method="POST">
+        <form id="replyForm" method="POST" enctype="multipart/form-data">
             @csrf
             <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 12px;">
                 Sending response to: <strong id="replyTargetEmail" style="color: var(--text-main);"></strong>
@@ -320,8 +320,14 @@
                 <p id="originalMessagePreview" style="white-space: pre-wrap; margin-top: 4px;"></p>
             </div>
 
-            <label style="font-size: 12px; color: var(--text-muted); display: block; margin-bottom: 6px;">Your Reply Message</label>
-            <textarea name="reply_message" rows="6" class="input-field" placeholder="Type your response instructions here..." required></textarea>
+            <label style="font-size: 12px; color: var(--text-muted); display: block; margin-bottom: 6px;">Your Reply Message (You can include links directly in the text)</label>
+            <textarea name="reply_message" rows="5" class="input-field" placeholder="Type your response or reference links here..." required></textarea>
+
+            <label style="font-size: 12px; color: var(--text-muted); display: block; margin-bottom: 6px;">Attach Document / Reference File (Optional)</label>
+            <input type="file" name="attachment_file" class="input-field" style="padding: 8px 12px;" accept=".pdf,.xlsx,.xls,.csv,.doc,.docx,.txt,.png,.jpg,.jpeg">
+            <div style="font-size: 11px; color: var(--text-muted); margin-top: -12px; margin-bottom: 16px;">
+                Supported systems: PDF, Excel, Documents, Plain Text or Images (Max: 10MB)
+            </div>
 
             <div class="modal-actions">
                 <button type="button" class="btn btn-cancel" onclick="closeReplyModal()">Cancel</button>
@@ -373,6 +379,9 @@
         replyForm.action = `/admin/contactManagement/${id}/reply`;
         replyTargetEmail.innerText = email;
         originalMessagePreview.innerText = originalMessage;
+        // Reset file input when opening modal
+        const fileInput = replyForm.querySelector('input[type="file"]');
+        if (fileInput) fileInput.value = '';
         replyBackdrop.classList.add('active');
     }
 

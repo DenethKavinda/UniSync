@@ -69,30 +69,58 @@ class ContactUsController extends Controller
     }
 
     /**
-     * Dispatches an electronic email notification directly back to the student.
+     * Dispatches an electronic email notification directly back to the student with file and link support.
+     */
+    /**
+     * Dispatches an electronic email notification directly back to the student with file and link support.
      */
     public function sendReplyEmail(Request $request, $id)
     {
+        // Added validation tracking rules for optional attachment file up to 10MB
         $request->validate([
-            'reply_message' => 'required|string|min:5',
+            'reply_message'    => 'required|string|min:5',
+            'attachment_file'  => 'nullable|file|mimes:pdf,xlsx,xls,csv,doc,docx,txt,png,jpg,jpeg|max:10240',
         ]);
 
         $messageRecord = ContactUs::findOrFail($id);
 
         try {
-            // Dispatch Email Stream
-            Mail::to($messageRecord->email)->send(new ContactReplyMail(
-                $request->input('reply_message'),
+            $rawMessage = $request->input('reply_message');
+
+
+            $urlRegex = '/(https?:\/\/[^\s<]+)/';
+            $formattedMessage = preg_replace($urlRegex, '$1', $rawMessage);
+
+            // Convert simple line breaks to HTML breaks so formatting displays correctly inside email readers
+            $formattedMessage = nl2br($formattedMessage);
+
+            // Initialize the Laravel Mail instance with the dynamic text payload
+            $emailInstance = new ContactReplyMail(
+                $formattedMessage,
                 $messageRecord->message,
                 $messageRecord->name
-            ));
+            );
+
+            // Check if a file was uploaded by the admin
+            if ($request->hasFile('attachment_file') && $request->file('attachment_file')->isValid()) {
+                $uploadedFile = $request->file('attachment_file');
+
+                // Attach file from its temporary path without permanently wasting application disk storage spaces
+                $emailInstance->attach($uploadedFile->getRealPath(), [
+                    'as'   => $uploadedFile->getClientOriginalName(),
+                    'mime' => $uploadedFile->getClientMimeType(),
+                ]);
+            }
+
+            // Dispatch Email Stream
+            Mail::to($messageRecord->email)->send($emailInstance);
 
             // ── AUTOMATICALLY SWAP STATUS VALUE TO SOLVED ON SUCCESS ──
             $messageRecord->update([
                 'status' => 'solved'
             ]);
 
-            return redirect()->back()->with('success', 'Reply email dispatched successfully!.' . $messageRecord->email);
+            return redirect()->back()->with('success', 'Reply email dispatched successfully to ' . $messageRecord->email);
         } catch (\Exception $e) {
             return redirect()->back()->withErrors(['Failed to send outbound email stream: ' . $e->getMessage()]);
         }
