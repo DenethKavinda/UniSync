@@ -37,6 +37,10 @@ use App\Models\Inquiry;
 Route::get('/', [LoginController::class, 'viewLoginPage'])->name('login');
 Route::post('/', [LoginController::class, 'authenticate'])->name('login.authenticate');
 
+Route::post('/password/send-otp', [LoginController::class, 'sendOtp'])->name('password.sendOtp');
+Route::post('/password/verify-otp', [LoginController::class, 'verifyOtp'])->name('password.verifyOtp');
+Route::post('/password/update-reset', [LoginController::class, 'updateResetPassword'])->name('password.updateReset');
+
 Route::get('/register', [RegisterController::class, 'viewRegisterPage'])->name('register');
 Route::post('/register', [RegisterController::class, 'storeRegisterUsers'])->name('register.store');
 

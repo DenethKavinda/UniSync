@@ -5,6 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login | UniSync</title>
+    <!-- Add CSRF token for JavaScript AJAX requests -->
+    <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap"
         rel="stylesheet">
@@ -122,6 +124,7 @@
 
             50% {
                 transform: translateY(-10px);
+
             }
         }
 
@@ -260,6 +263,90 @@
             }
         }
 
+        /* Modal styling matching the glassmorphism theme */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(2, 6, 23, 0.7);
+            backdrop-filter: blur(10px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .modal-card {
+            width: 400px;
+            padding: 35px;
+            border-radius: 24px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, .15);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, .5);
+            transform: scale(0.9);
+            transition: transform 0.3s ease;
+            position: relative;
+        }
+
+        .modal-overlay.active .modal-card {
+            transform: scale(1);
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            color: #cbd5e1;
+            font-size: 20px;
+            cursor: pointer;
+            background: none;
+            border: none;
+        }
+
+        .modal-close:hover {
+            color: #ec4899;
+        }
+
+        .modal-step {
+            display: none;
+        }
+
+        .modal-step.active {
+            display: block;
+        }
+
+        .modal-title {
+            color: white;
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .modal-msg {
+            font-size: 13px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .msg-error {
+            color: #f87171;
+        }
+
+        .msg-success {
+            color: #4ade80;
+        }
+
         @media(max-width:500px) {
             .login-container {
                 width: 92%;
@@ -281,6 +368,7 @@
     <div class="blob2"></div>
     <div id="cursor-glow"></div>
 
+    <!-- MAIN LOGIN CARD -->
     <div class="login-container">
 
         <div class="logo">
@@ -320,12 +408,73 @@
             </button>
 
             <div class="footer">
+                <a href="javascript:void(0)" onclick="openForgotModal()">Forgot Password?</a>
+                <br><br>
                 Don't have an account?
                 <a href="{{ route('register') }}">Register</a>
             </div>
 
         </form>
 
+    </div>
+
+    <!-- FORGOT PASSWORD POPUP MODAL -->
+    <div class="modal-overlay" id="forgotModal">
+        <div class="modal-card">
+            <button class="modal-close" onclick="closeForgotModal()">✕</button>
+            <div id="modalNotification" class="modal-msg"></div>
+
+            <!-- STEP 1: Enter Email -->
+            <div class="modal-step active" id="step1">
+                <div class="modal-title">Forgot Password</div>
+                <p style="color: #cbd5e1; font-size: 14px; text-align: center; margin-bottom: 20px;">
+                    Enter your registered email below to receive a verification OTP.
+                </p>
+                <div class="input-group">
+                    <label>Email Address</label>
+                    <div class="input-box">
+                        <input type="email" id="forgotEmail" placeholder="name@example.com">
+                    </div>
+                </div>
+                <button type="button" class="login-btn" onclick="sendOtp()">Send OTP</button>
+            </div>
+
+            <!-- STEP 2: Enter OTP -->
+            <div class="modal-step" id="step2">
+                <div class="modal-title">Verify OTP</div>
+                <p style="color: #cbd5e1; font-size: 14px; text-align: center; margin-bottom: 20px;">
+                    We sent a 6-digit code to your email. Enter it below.
+                </p>
+                <div class="input-group">
+                    <label>Enter OTP Code</label>
+                    <div class="input-box">
+                        <input type="text" id="otpCode" placeholder="6-Digit Code" maxlength="6">
+                    </div>
+                </div>
+                <button type="button" class="login-btn" onclick="verifyOtp()">Verify Code</button>
+            </div>
+
+            <!-- STEP 3: Reset Password -->
+            <div class="modal-step" id="step3">
+                <div class="modal-title">New Password</div>
+                <p style="color: #cbd5e1; font-size: 14px; text-align: center; margin-bottom: 20px;">
+                    Create a strong and secure new password.
+                </p>
+                <div class="input-group">
+                    <label>New Password</label>
+                    <div class="input-box">
+                        <input type="password" id="newPassword" placeholder="Minimum 8 characters">
+                    </div>
+                </div>
+                <div class="input-group">
+                    <label>Confirm New Password</label>
+                    <div class="input-box">
+                        <input type="password" id="confirmPassword" placeholder="Repeat password">
+                    </div>
+                </div>
+                <button type="button" class="login-btn" onclick="resetPassword()">Reset Password</button>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -366,57 +515,158 @@
         const card = document.querySelector(".login-container");
 
         document.addEventListener("mousemove", (e) => {
-
             let x = (window.innerWidth / 2 - e.pageX) / 35;
             let y = (window.innerHeight / 2 - e.pageY) / 35;
-
-            card.style.transform =
-                `rotateY(${x}deg) rotateX(${-y}deg)`;
+            if (card) {
+                card.style.transform = `rotateY(${x}deg) rotateX(${-y}deg)`;
+            }
         });
 
-        // Ripple Effect
-        document.querySelector('.login-btn')
-            .addEventListener('click', function(e) {
+        // Ripple Effect Generator
+        function createRipple(element, event) {
+            const ripple = document.createElement("span");
+            ripple.classList.add("ripple");
+            const rect = element.getBoundingClientRect();
+            ripple.style.width = ripple.style.height = "50px";
+            ripple.style.left = event.clientX - rect.left - 25 + "px";
+            ripple.style.top = event.clientY - rect.top - 25 + "px";
+            element.appendChild(ripple);
+            setTimeout(() => {
+                ripple.remove();
+            }, 600);
+        }
 
-                const ripple =
-                    document.createElement("span");
-
-                ripple.classList.add("ripple");
-
-                const rect =
-                    this.getBoundingClientRect();
-
-                ripple.style.width =
-                    ripple.style.height = "50px";
-
-                ripple.style.left =
-                    e.clientX - rect.left - 25 + "px";
-
-                ripple.style.top =
-                    e.clientY - rect.top - 25 + "px";
-
-                this.appendChild(ripple);
-
-                setTimeout(() => {
-                    ripple.remove();
-                }, 600);
+        document.querySelectorAll('.login-btn').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                createRipple(this, e);
             });
+        });
+
+        // --- POPUP WINDOW MODAL LOGIC (FORGOT PASSWORD) ---
+        const modal = document.getElementById('forgotModal');
+        const notification = document.getElementById('modalNotification');
+        let userEmail = "";
+
+        function openForgotModal() {
+            modal.classList.add('active');
+            switchStep(1);
+        }
+
+        function closeForgotModal() {
+            modal.classList.remove('active');
+            document.getElementById('forgotEmail').value = "";
+            document.getElementById('otpCode').value = "";
+            document.getElementById('newPassword').value = "";
+            document.getElementById('confirmPassword').value = "";
+        }
+
+        function switchStep(stepNumber) {
+            document.querySelectorAll('.modal-step').forEach(step => step.classList.remove('active'));
+            document.getElementById(`step${stepNumber}`).classList.add('active');
+            notification.innerHTML = "";
+        }
+
+        function showMsg(text, isSuccess = false) {
+            notification.innerText = text;
+            notification.className = isSuccess ? "modal-msg msg-success" : "modal-msg msg-error";
+        }
+
+        // Global headers helper for Fetch API
+        const ajaxHeaders = {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+            'Accept': 'application/json'
+        };
+
+        // Step 1: Send Request to Backend to send OTP Email
+        function sendOtp() {
+            const email = document.getElementById('forgotEmail').value;
+            if (!email) return showMsg("Please enter your email address.");
+
+            showMsg("Sending OTP... please wait...", true);
+
+            fetch("{{ route('password.sendOtp') }}", {
+                    method: "POST",
+                    headers: ajaxHeaders,
+                    body: JSON.stringify({
+                        email: email
+                    })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        userEmail = email; // Keep dynamic track of the email session
+                        switchStep(2);
+                        showMsg(data.message, true);
+                    } else {
+                        showMsg(data.message || "Email address not found.");
+                    }
+                })
+                .catch(() => showMsg("An unexpected server error occurred."));
+        }
+
+        // Step 2: Validate the OTP submitted by the user
+        function verifyOtp() {
+            const otp = document.getElementById('otpCode').value;
+            if (!otp) return showMsg("Please enter the 6-digit OTP code.");
+
+            fetch("{{ route('password.verifyOtp') }}", {
+                    method: "POST",
+                    headers: ajaxHeaders,
+                    body: JSON.stringify({
+                        email: userEmail,
+                        otp: otp
+                    })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        switchStep(3);
+                        showMsg(data.message, true);
+                    } else {
+                        showMsg(data.message || "Invalid or expired OTP.");
+                    }
+                })
+                .catch(() => showMsg("Verification process encountered an error."));
+        }
+
+        // Step 3: Send structural update to target user database entry
+        function resetPassword() {
+            const newPass = document.getElementById('newPassword').value;
+            const confirmPass = document.getElementById('confirmPassword').value;
+
+            if (!newPass || !confirmPass) return showMsg("Please fill out all password fields.");
+            if (newPass.length < 8) return showMsg("Password must be at least 8 characters long.");
+            if (newPass !== confirmPass) return showMsg("Passwords fields do not match.");
+
+            fetch("{{ route('password.updateReset') }}", {
+                    method: "POST",
+                    headers: ajaxHeaders,
+                    body: JSON.stringify({
+                        email: userEmail,
+                        password: newPass,
+                        password_confirmation: confirmPass
+                    })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        alert("Password updated successfully! You can now log in.");
+                        closeForgotModal();
+                    } else {
+                        showMsg(data.message || "Failed updating credentials.");
+                    }
+                })
+                .catch(() => showMsg("Password processing structural modification failure."));
+        }
 
         // Particles Background
-        const canvas =
-            document.getElementById("particles");
-
-        const ctx =
-            canvas.getContext("2d");
-
-        canvas.width =
-            window.innerWidth;
-
-        canvas.height =
-            window.innerHeight;
+        const canvas = document.getElementById("particles");
+        const ctx = canvas.getContext("2d");
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
 
         let particles = [];
-
         for (let i = 0; i < 120; i++) {
             particles.push({
                 x: Math.random() * canvas.width,
@@ -428,61 +678,26 @@
         }
 
         function animateParticles() {
-
-            ctx.clearRect(
-                0,
-                0,
-                canvas.width,
-                canvas.height
-            );
-
-            ctx.fillStyle =
-                "rgba(255,255,255,0.7)";
-
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = "rgba(255,255,255,0.7)";
             particles.forEach(p => {
-
                 ctx.beginPath();
-                ctx.arc(
-                    p.x,
-                    p.y,
-                    p.r,
-                    0,
-                    Math.PI * 2
-                );
+                ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
                 ctx.fill();
-
                 p.x += p.dx;
                 p.y += p.dy;
-
-                if (
-                    p.x < 0 ||
-                    p.x > canvas.width
-                ) p.dx *= -1;
-
-                if (
-                    p.y < 0 ||
-                    p.y > canvas.height
-                ) p.dy *= -1;
+                if (p.x < 0 || p.x > canvas.width) p.dx *= -1;
+                if (p.y < 0 || p.y > canvas.height) p.dy *= -1;
             });
-
-            requestAnimationFrame(
-                animateParticles
-            );
+            requestAnimationFrame(animateParticles);
         }
-
         animateParticles();
 
-        window.addEventListener(
-            "resize",
-            () => {
-                canvas.width =
-                    window.innerWidth;
-
-                canvas.height =
-                    window.innerHeight;
-            });
+        window.addEventListener("resize", () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
     </script>
-
 </body>
 
 </html>
